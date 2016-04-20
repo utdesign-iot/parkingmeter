@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+
+<html>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+
+<script>
+var numMinutes = 0
+var addMinFlag = false; 
+var timerDisplay = "0:00";
+
+function startTimer(duration, display) {
+    var timer = duration, minutes, seconds;
+    setInterval(function () {
+        minutes = parseInt(timer / 60, 10)
+        seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        if (addMinFlag) {
+          addMinFlag = false;
+          timer += (60*15)
+        }
+
+        display.text(minutes + ":" + seconds);
+
+        if (--timer < 0) {
+            timer = duration;
+        }
+    }, 1000);
+}
+
+function fifteenMinutes() {
+  numMinutes = 60*15;
+  document.getElementById("time").innerHTML = '15:00';
+
+}
+
+function thirtyMinutes() {
+  numMinutes = 60*30;
+    timerDisplay = '30:00';
+    document.getElementById("time").innerHTML = '30:00';
+
+
+}
+
+function fourtyfiveMinutes() {
+  numMinutes = 60*45;
+    timerDisplay = '45:00';
+    document.getElementById("time").innerHTML = '45:00';
+
+
+}
+
+function sixtyMinutes() {
+  numMinutes = 60*60;
+    timerDisplay = '60:00';
+    document.getElementById("time").innerHTML = '60:00';
+
+
+}
+
+
+function start() {
+      
+
+    display = $('#time');
+    startTimer(numMinutes, display);
+};
+
+function addFifteenMinutes() {
+  addMinFlag = true; 
+}
+
+
+
+ </script>
+
+<body>
+    <div><span id="time">0:00</span></div>
+    <button onclick="start()">Start!  </button>
+    <button onclick="fifteenMinutes()">15 minutes </button>
+    <button onclick="thirtyMinutes()">30 minutes </button>
+    <button onclick="fourtyfiveMinutes()">45 minutes </button>
+    <button onclick="sixtyMinutes()">60 minutes </button>
+    <p>  </p>
+    <button onclick="addFifteenMinutes()">Add 15 Minutes  </button>
+
+
+
+
+</body>
+
+</html>
