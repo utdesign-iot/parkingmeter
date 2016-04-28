@@ -3,91 +3,277 @@
 <html>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<link href="styles.css" rel="stylesheet">
+
 
 <script>
 var numMinutes = 0
-var addMinFlag = false; 
+var timerStarted = false;
+
+var addminFlag15 = false;
+var addminFlag30 = false;
+var addminFlag45 = false;
+var addminFlag60 = false;
+var paid = false;
+var timerTxn = {"minutes": 15};
+
+var amountDue = 0;
+
 var timerDisplay = "0:00";
+
+var addminFlag15
 
 function startTimer(duration, display) {
     var timer = duration, minutes, seconds;
     setInterval(function () {
         minutes = parseInt(timer / 60, 10)
         seconds = parseInt(timer % 60, 10);
-
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
 
-        if (addMinFlag) {
-          addMinFlag = false;
-          timer += (60*15)
+        if (addminFlag15 && paid ) {
+
+          addminFlag15 = false;
+           paid = false;
+
+          timer += (60*15);
+          addToServer(15);
         }
 
-        display.text(minutes + ":" + seconds);
+         if (addminFlag30 && paid ) {
+          addminFlag30 = false;
+          paid = false;
+          timer += (60*30);
+          addToServer(30);
+        }
 
+         if (addminFlag45 && paid ) {
+          addminFlag45 = false;
+          paid = false;
+          timer += (60*45);
+          addToServer(45);
+        }
+
+         if (addminFlag60 && paid ) {
+          addminFlag60 = false;
+          paid = false;
+          timer += (60*60)
+          addToServer(60);
+        }
+
+
+        display.text(minutes + ":" + seconds);
         if (--timer < 0) {
             timer = duration;
+        }
+
+
+
+        if (timer ==0) {
+          timerStarted = false;
         }
     }, 1000);
 }
 
+
+
+
 function fifteenMinutes() {
-  numMinutes = 60*15;
-  document.getElementById("time").innerHTML = '15:00';
+
+  document.getElementById("payStatement").innerHTML = "15 Minutes: Please Pay $1";
+
+  if (!timerStarted) {
+    numMinutes = 60*15;
+    amountDue = 15;
+
+
+
+
+  }
+
+  else {
+      addminFlag15 = true;
+      amountDue +=15;
+
+
+  }
+
+
 
 }
+
 
 function thirtyMinutes() {
-  numMinutes = 60*30;
-    timerDisplay = '30:00';
-    document.getElementById("time").innerHTML = '30:00';
 
+  document.getElementById("payStatement").innerHTML = "30 Minutes: Please Pay $2";
+
+  if (!timerStarted) {
+    numMinutes = 60*30;
+    timerDisplay = '30:00';
+    amountDue = 30;
+  }
+
+  else {
+    addminFlag30 = true;
+    amountDue += 30;
+  }
 
 }
 
-function fourtyfiveMinutes() {
-  numMinutes = 60*45;
-    timerDisplay = '45:00';
-    document.getElementById("time").innerHTML = '45:00';
 
+
+
+function fourtyfiveMinutes() {
+
+  document.getElementById("payStatement").innerHTML = "45 Minutes: Please Pay $3";
+
+
+  if (!timerStarted) {
+    numMinutes = 60*45;
+    timerDisplay = '45:00';
+    amountDue = 45;
+  }
+  else {
+    addminFlag45 = true;
+    amountDue += 45;
+  }
 
 }
 
 function sixtyMinutes() {
-  numMinutes = 60*60;
+  document.getElementById("payStatement").innerHTML = "60 Minutes: Please Pay $4";
+
+  if (!timerStarted) {
+    numMinutes = 60*60;
     timerDisplay = '60:00';
-    document.getElementById("time").innerHTML = '60:00';
+    amountDue = 60;
+  }
 
+  else {
+    addminFlag60 = true;
+    amountDue +=60;
+      }
 
+  }
+
+  function startOnServer (timerMinutes) {
+
+  timerTxn.minutes = timerMinutes;
+
+  $.ajax({url: "http://10.21.62.85:3000/start",
+                    //contentType: 'application/json',
+                    dataType: "json",
+                    contentType: "application/json; charset=UTF-8",
+                    data: JSON.stringify(timerTxn),
+                    crossDomain: true,
+                    type: 'POST',
+                    success: function (result) {
+                    console.log(result);
+                }});
 }
 
+function addToServer (timerMinutesAdd) {
+
+  timerTxn.minutes = timerMinutesAdd;
+
+  $.ajax({url: "http://10.21.62.85:3000/add",
+                    //contentType: 'application/json',
+                    dataType: "json",
+                    contentType: "application/json; charset=UTF-8",
+                    data: JSON.stringify(timerTxn),
+                    crossDomain: true,
+                    type: 'POST',
+                    success: function (result) {
+                    console.log(result);
+                }});
+}
 
 function start() {
-      
+  document.getElementById("payStatement").innerHTML = "Processing Payment...";
+  setTimeout(function() {  document.getElementById("payStatement").innerHTML = "Payment Approved! Thanks for using UTD IOT Parking.";
+}, 800);
 
-    display = $('#time');
-    startTimer(numMinutes, display);
-};
 
-function addFifteenMinutes() {
-  addMinFlag = true; 
+
+    if (!timerStarted) {
+
+      timerStarted = true;
+      display = $('#time');
+      startTimer(numMinutes, display);
+
+    if (numMinutes == (15*60)) {
+      startOnServer(15);
+
+    }
+
+    if (numMinutes == (30*60)) {
+        startOnServer(30);
+
+    }
+
+    if (numMinutes == (45*60)) {
+      startOnServer(45);
+    }
+
+
+    if (numMinutes == (60*60)) {
+      document.getElementById("time").innerHTML = '60:00';
+      startOnServer(60);
+
+    }
+
+
+    }
+
+    else {
+            if (addminFlag15) {
+                paid = true;
+                amountDue = 0;
+
+            }
+
+            if (addminFlag30) {
+                paid = true;
+                amountDue = 0;
+
+            }
+
+            if (addminFlag45) {
+                paid = true;
+                amountDue = 0;
+
+            }
+
+            if (addminFlag60) {
+                paid = true;
+                amountDue = 0;
+
+            }
+            console.log("Payment confirmed!")
+            amountDue = 0;
+    }
+
 }
 
 
 
+
+ ;
  </script>
 
 <body>
-    <div><span id="time">0:00</span></div>
-    <button onclick="start()">Start!  </button>
-    <button onclick="fifteenMinutes()">15 minutes </button>
-    <button onclick="thirtyMinutes()">30 minutes </button>
-    <button onclick="fourtyfiveMinutes()">45 minutes </button>
-    <button onclick="sixtyMinutes()">60 minutes </button>
-    <p>  </p>
-    <button onclick="addFifteenMinutes()">Add 15 Minutes  </button>
+    <h1><div><span id="time">00:00</span></div></h1>
+    <center>
+    <input class="fifteen" id="fifteen" type="submit" value="15 minutes" onclick="fifteenMinutes()"/>
+    <input class="thirty" id="thirty" type="submit" value="30 minutes" onclick="thirtyMinutes()"/>
+    <input class="fourtyfive" id="fourtyfive" type="submit" value="45 minutes" onclick="fourtyfiveMinutes()"/>
+    <input class="sixty" id="sixty" type="submit" value="60 minutes" onclick="sixtyMinutes()"/>
+    </center>
+    <center><p id = "payStatement">  </p></center>
 
-
+    <center>
+      <input class="myButton" id="myButton" type="submit" value="Pay" onclick="start()"/>
+    </center>
 
 
 </body>
