@@ -7,6 +7,8 @@
 
 
 <script>
+
+const endPoint = "https://powerful-ravine-45557.herokuapp.com"
 var numMinutes = 0
 var timerStarted = false;
 
@@ -160,7 +162,7 @@ function sixtyMinutes() {
 
   timerTxn.minutes = timerMinutes;
 
-  $.ajax({url: "http://10.21.62.85:3000/start",
+  $.ajax({url: endPoint + "/start",
                     //contentType: 'application/json',
                     dataType: "json",
                     contentType: "application/json; charset=UTF-8",
@@ -176,7 +178,7 @@ function addToServer (timerMinutesAdd) {
 
   timerTxn.minutes = timerMinutesAdd;
 
-  $.ajax({url: "http://10.21.62.85:3000/add",
+  $.ajax({url: endPoint + "/add",
                     //contentType: 'application/json',
                     dataType: "json",
                     contentType: "application/json; charset=UTF-8",
@@ -189,9 +191,17 @@ function addToServer (timerMinutesAdd) {
 }
 
 function start() {
-  document.getElementById("payStatement").innerHTML = "Processing Payment...";
-  setTimeout(function() {  document.getElementById("payStatement").innerHTML = "Payment Approved! Thanks for using UTD IOT Parking.";
-}, 800);
+
+  if (amountDue != 0) {
+    document.getElementById("payStatement").innerHTML = "Processing Payment...";
+    setTimeout(function() {  document.getElementById("payStatement").innerHTML = "Payment Approved! Thanks for using UTD IOT Parking.";
+  }, 800);
+  }
+
+  else {
+    document.getElementById("payStatement").innerHTML = "Please select how long you wish to park."
+  }
+
 
 
 
